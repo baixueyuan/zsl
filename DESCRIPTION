@@ -1,0 +1,12 @@
+Package: zsl
+Type: Package
+Title: Download and manipulate discount rate of bond from China Clear.
+Version: 0.2
+Date: 2016-08-01
+Author: Bai Xueyuan <bai_xueyuan@msn.com>
+Maintainer: Bai Xueyuan <bai_xueyuan@msn.com>
+Description: Download and manipulate discount rate of bond from China Clear.
+Depends:
+    R (>= 3.1.0)
+License: GPL-3
+LazyData: TRUE
