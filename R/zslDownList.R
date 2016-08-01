@@ -1,3 +1,27 @@
+#' Download the URL List of the zsl Data
+#'
+#' Check the website and scape the urls and other attibutes, then form the
+#' result data.frame containing the infomation for the further use.
+#'
+#' This function mostly use the \code{xml2} package to get information from the
+#' website. The final data.frame contains the announcement date, exchange,
+#' file name and url of the file. There is only one param \code{url}, which is
+#' used to be checked and get the corresponding info. The zsl list is in several
+#' pages (now nearly 150 pages), the default \code{url} is the first page where
+#' the newest files' urls can be get.
+#'
+#' The file name contained in the result data.frame is strictly organized. That
+#' is "date + exchange + .xls". For the further use, this is the basic rule.
+#'
+#' @param url the url to be parsed and get the information
+#'
+#' @return A data.frame contains the announcement date, exchange,
+#'   file name and url of the file.
+#' @import xml2
+#' @import stringr
+#' @import lubridate
+#' @export
+
 zslDownList <- function(url) {
   # 本函数利用xml2包爬取中证登的折算率文件网站，返回下载文件列表
   # 返回的列表包括了交易所，文件日期，文件链接，下载文件名
@@ -12,7 +36,7 @@ zslDownList <- function(url) {
   xpathd <- "//div[@class='pageTabContent']/ul/li/span[@class='time']"
   li <- xml2::xml_find_all(xl, xpath)
   ind1 <- stringr::str_detect(xml2::xml_attr(li, 'href'), 'xls$')
-  ind1 <- stringr::str_detect(xml2::xml_attr(li, 'href'), 'shtml$')
+  ind2 <- stringr::str_detect(xml2::xml_attr(li, 'href'), 'shtml$')
   li <- li[ind1 | ind2]
   title <- xml2::xml_text(li, trim=TRUE)
 
