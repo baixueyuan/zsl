@@ -2,7 +2,7 @@
 % Please edit documentation in R/zslUpdateDB.R
 \name{zslUpdateDB}
 \alias{zslUpdateDB}
-\title{Title}
+\title{Update zsl Data}
 \usage{
 zslUpdateDB(ch, date, folder = "", delete.file = TRUE)
 }
@@ -10,6 +10,8 @@ zslUpdateDB(ch, date, folder = "", delete.file = TRUE)
 \item{delete.file}{}
 }
 \description{
-Title
+Update the bond discount rate data to MySQL database. The date of the lastest
+records can be detected from the database, and search the new data from the
+website, so the param \code{date} can be ignored.
 }
 
