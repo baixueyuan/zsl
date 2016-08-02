@@ -10,7 +10,7 @@ while (a > 1) {
 
 rm(list=ls())
 ch <- RODBC::odbcConnect('research')
-zslUpdateDB()
+zslUpdateDB(date=Sys.Date())
 
 file='files/20160729SZ.xls'
 system.time(tmp <- tidyData('files/20160729SZ.xls'))

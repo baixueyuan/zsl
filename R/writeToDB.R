@@ -52,7 +52,7 @@ writeToDB <- function(data, channel, table, quiet=TRUE, sql.out=FALSE,
     for (i in 1:nrow(data)) {
       qry <- paste('DELETE FROM ', table, ' WHERE ', colnames(data)[primary],
                    '="', data[i, primary], '"', sep='')
-      sqlQuery(channel, qry)
+      RODBC::sqlQuery(channel, qry)
       setTxtProgressBar(pb, i)
     }
   }
@@ -75,7 +75,7 @@ writeToDB <- function(data, channel, table, quiet=TRUE, sql.out=FALSE,
   }
   for (i in 1:nrow(data)) {
     if (sql.out) assign('query', qry, envir=.GlobalEnv)
-    rpt <- sqlQuery(channel, qry[i])
+    rpt <- RODBC::sqlQuery(channel, qry[i])
     if (length(rpt)==0) {
       if (!quiet) setTxtProgressBar(pb, i)
     } else {

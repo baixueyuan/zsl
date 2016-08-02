@@ -66,7 +66,7 @@ tidyData <- function(file) {
   # 利用magrittr和dplyr整理数据
   data <- data %>%
     ## 取需要的几列
-    dplyr::select(matches(pattern)) %>%
+    dplyr::select(dplyr::matches(pattern)) %>%
     ## 修改列名称
     magrittr::set_colnames(c('code', 'name', 'ratio', 'start', 'end')) %>%
     # 以code列为准去掉NA行

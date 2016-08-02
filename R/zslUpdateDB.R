@@ -19,7 +19,7 @@ zslUpdateDB <- function(ch, date, folder='', delete.file=TRUE) {
   if (missing(ch)) {
     ch <- get('ch', envir=.GlobalEnv)
   } else {
-    stop('The RODBC connection should be given, or named "ch" in globa.')
+    stop('The RODBC connection should be given, or named "ch" in global.')
   }
 
   # 获取日期
@@ -39,8 +39,9 @@ zslUpdateDB <- function(ch, date, folder='', delete.file=TRUE) {
       for (i in date_list) {
         i <- as.Date(i, origin='1970-01-01')
         qry <- paste('DELETE FROM zsl WHERE date="', i, '"', sep='')
-        sqlQuery(ch, qry)
-        cat('\nThe records of', i, )
+        RODBC::sqlQuery(ch, qry)
+        cat('\nThe records of', as.Date(i, origin='1970-01-01'),
+            'has been deleted')
       }
     }
     for (i in dl$fn) {
