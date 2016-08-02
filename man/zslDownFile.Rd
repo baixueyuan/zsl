@@ -4,7 +4,7 @@
 \alias{zslDownFile}
 \title{Download the zsl Files}
 \usage{
-zslDownFile(dl, folder, overwrite = FALSE)
+zslDownFile(dl, folder = "", overwrite = FALSE, return = TRUE)
 }
 \arguments{
 \item{dl}{the download file list, containing the file name and urls}
@@ -12,13 +12,17 @@ zslDownFile(dl, folder, overwrite = FALSE)
 \item{folder}{the folder saving the files, can ben missed}
 
 \item{overwrite}{logical, if TRUE any existing file will be overwritten}
+
+\item{return}{logical, if TRUE the file list data.frame will be returned}
 }
 \value{
-No return, the file will be downloaded.
+The file will be downloaded, and the file list data.frame.
 }
 \description{
 Download the zsl files by the file list given by \code{zslDownList} or
 \code{zslCombineList}. A folder name can be given to save the files, if which
-does not exist it will be created.
+does not exist it will be created. If \code{return} is set to TRUE, the file
+list data.frame will be returned, as the file name column can be used for
+reading data.
 }
 

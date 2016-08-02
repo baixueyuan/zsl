@@ -11,8 +11,6 @@
 #'   this date
 #'
 #' @return The data.frame contains all files from now to the given date.
-#' @import magrittr
-#' @import dplyr
 #' @export
 
 zslCombineList <- function(start) {

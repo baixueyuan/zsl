@@ -2,10 +2,13 @@
 % Please edit documentation in R/writeToDB.R
 \name{writeToDB}
 \alias{writeToDB}
+\alias{writeToSQL}
 \title{Write The data.frame to MySQL Database}
 \usage{
 writeToDB(data, channel, table, quiet = TRUE, sql.out = FALSE,
   delete.first = FALSE, primary = 1L)
+
+writeToSQL(data, sql.file, table, append = TRUE)
 }
 \arguments{
 \item{data}{the data.frame will be written to the database}
@@ -24,6 +27,11 @@ primary key column}
 
 \item{primary}{integer, which column is the primary column, and just used
 when delete records}
+
+\item{sql.file}{the file name of the output sql file}
+
+\item{append}{pass to the \code{write.table} function, whether overwrite the
+existed file or appent to it}
 }
 \value{
 Besides errors messages, no return.
@@ -39,7 +47,11 @@ can be skipped, saving time. The deletion work is based on the primary key,
 so the column index has to be given, and the column name should the same as
 that in the database.
 
-The mechanism of the function is to **paste** an INSERT query and send to
-the database server. Sum method seems safe to be executed
+The mechanism of the function is to \strong{paste} an INSERT query and send to
+the database server. Sum method seems safe to be executed.
+
+The function \code{writeToSQL} just save the query to the \code{.sql} file,
+which can be used to import to the database manually, however, this is a
+good choice for the big data set.
 }
 

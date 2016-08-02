@@ -9,8 +9,12 @@
 #' so the column index has to be given, and the column name should the same as
 #' that in the database.
 #'
-#' The mechanism of the function is to **paste** an INSERT query and send to
-#' the database server. Sum method seems safe to be executed
+#' The mechanism of the function is to \strong{paste} an INSERT query and send to
+#' the database server. Sum method seems safe to be executed.
+#'
+#' The function \code{writeToSQL} just save the query to the \code{.sql} file,
+#' which can be used to import to the database manually, however, this is a
+#' good choice for the big data set.
 #'
 #' @param data the data.frame will be written to the database
 #' @param channel an ODBC channel object
@@ -24,7 +28,6 @@
 #'   when delete records
 #'
 #' @return Besides errors messages, no return.
-#' @import RODBC
 #' @export
 
 writeToDB <- function(data, channel, table, quiet=TRUE, sql.out=FALSE,
@@ -80,4 +83,29 @@ writeToDB <- function(data, channel, table, quiet=TRUE, sql.out=FALSE,
     }
   }
   if (!quiet) close(pb)
+}
+
+
+#' @rdname writeToDB
+#' @param sql.file the file name of the output sql file
+#' @param append pass to the \code{write.table} function, whether overwrite the
+#'   existed file or appent to it
+#' @export
+
+
+writeToSQL <- function(data, sql.file, table, append=TRUE) {
+  # 本函数直接将给定的数据框写入SQL文件
+
+  # 将数据转为SQL语句
+  for (i in 1:length(data)) {
+    cls <- class(data[[i]])
+    if(cls=='character' || cls=='Date')
+      data[[i]] <- paste('\"', as.character(data[[i]]), '\"', sep='')
+  }
+  qry <- apply(data, 1, paste, collapse=',')
+  qry <- gsub('\"NA\"', 'NULL', qry)
+  qry <- gsub('NA,', 'NULL,', qry)
+  qry <- paste('INSERT INTO ', table, ' VALUES(', qry, ');', sep='')
+  write.table(qry, file=sql.file, append=append, quote=FALSE,
+              row.names=FALSE, col.names=FALSE)
 }

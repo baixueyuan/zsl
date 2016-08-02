@@ -22,7 +22,8 @@ tidyData <- function(file) {
 
   # 提取文件日期
   file_s <- stringr::str_extract(file, '([[:alnum:]]{10})\\.xls')
-  if (is.na(date <- as.numeric(stringr::str_extract(file_s, '^[[:digit:]]{8}')))) {
+  if (is.na(date <-
+            as.numeric(stringr::str_extract(file_s, '^[[:digit:]]{8}')))) {
     stop('The file name given is NOT following the rule.')
   }
 

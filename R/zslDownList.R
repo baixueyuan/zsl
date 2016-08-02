@@ -17,9 +17,6 @@
 #'
 #' @return A data.frame contains the announcement date, exchange,
 #'   file name and url of the file.
-#' @import xml2
-#' @import stringr
-#' @import lubridate
 #' @export
 
 zslDownList <- function(url) {

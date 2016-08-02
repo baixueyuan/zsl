@@ -2,16 +2,19 @@
 #'
 #' Download the zsl files by the file list given by \code{zslDownList} or
 #' \code{zslCombineList}. A folder name can be given to save the files, if which
-#' does not exist it will be created.
+#' does not exist it will be created. If \code{return} is set to TRUE, the file
+#' list data.frame will be returned, as the file name column can be used for
+#' reading data.
 #'
 #' @param dl the download file list, containing the file name and urls
 #' @param folder the folder saving the files, can ben missed
 #' @param overwrite logical, if TRUE any existing file will be overwritten
+#' @param return logical, if TRUE the file list data.frame will be returned
 #'
-#' @return No return, the file will be downloaded.
+#' @return The file will be downloaded, and the file list data.frame.
 #' @export
 
-zslDownFile <- function(dl, folder, overwrite=FALSE) {
+zslDownFile <- function(dl, folder='', overwrite=FALSE, return=TRUE) {
   # 本函数对给定的下载列表进行下载，下载列表应由zslDownList函数生成
   # dl，下载列表数据框，应包含文件名和链接列，如果不给定也可以从Global环境取
   # folder，可以设置目录，函数会将其与dl文件名列连接
@@ -21,7 +24,7 @@ zslDownFile <- function(dl, folder, overwrite=FALSE) {
 
   if (missing(dl)) get('dl', envir=.GlobalEnv)
 
-  if (!missing(folder)) {
+  if (folder!='') {
     folder <- stringr::str_replace(folder, '\\\\', '/')
     folder <- stringr::str_replace(folder, '^/(.*)/$', '\\1')
     if (!dir.exists(folder)) dir.create(folder, recursive=TRUE)
@@ -45,4 +48,6 @@ zslDownFile <- function(dl, folder, overwrite=FALSE) {
       cat('Still', nrow(dl) - i, 'file(s) left.\n')
     }
   }
+
+  if (return) return(dl)
 }
