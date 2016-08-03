@@ -11,6 +11,7 @@ while (a > 1) {
 rm(list=ls())
 ch <- RODBC::odbcConnect('research')
 zslUpdateDB(date=Sys.Date())
+zslTwoDayDiff()
 
 file='files/20160729SZ.xls'
 system.time(tmp <- tidyData('files/20160729SZ.xls'))

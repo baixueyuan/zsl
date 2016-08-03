@@ -7,11 +7,26 @@
 zslUpdateDB(ch, date, folder = "", delete.file = TRUE)
 }
 \arguments{
-\item{delete.file}{}
+\item{ch}{the RODBC connection object}
+
+\item{date}{the date of updating the zsl data}
+
+\item{folder}{the folder where to put the xls files}
+
+\item{delete.file}{logical, whether to delete the downloaded file}
+}
+\value{
+No return, only the database will be updated.
 }
 \description{
 Update the bond discount rate data to MySQL database. The date of the lastest
 records can be detected from the database, and search the new data from the
 website, so the param \code{date} can be ignored.
+}
+\details{
+If the param \code{date} is
+given, that's meaning that this date's data would be updated even if it
+exists on the database server. All the data of and later than the given date
+will be deleted first, then new data is written.
 }
 

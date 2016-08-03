@@ -4,12 +4,17 @@
 #' records can be detected from the database, and search the new data from the
 #' website, so the param \code{date} can be ignored.
 #'
-#' @param ch
-#' @param date
-#' @param folder
-#' @param delete.file
+#' If the param \code{date} is
+#' given, that's meaning that this date's data would be updated even if it
+#' exists on the database server. All the data of and later than the given date
+#' will be deleted first, then new data is written.
 #'
-#' @return
+#' @param ch the RODBC connection object
+#' @param date the date of updating the zsl data
+#' @param folder the folder where to put the xls files
+#' @param delete.file logical, whether to delete the downloaded file
+#'
+#' @return No return, only the database will be updated.
 #' @export
 #'
 zslUpdateDB <- function(ch, date, folder='', delete.file=TRUE) {

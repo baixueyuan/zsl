@@ -2,14 +2,36 @@
 % Please edit documentation in R/zslTwoDayDiff.R
 \name{zslTwoDayDiff}
 \alias{zslTwoDayDiff}
-\title{Title}
+\title{Compare Two Days' Difference of zsl Data}
 \usage{
-zslTwoDayDiff(date, ch)
+zslTwoDayDiff(date, ch, changed.only = FALSE)
 }
 \arguments{
-\item{ch}{}
+\item{date}{the later date of compared two days, the previous day can be
+detected automatically}
+
+\item{ch}{RODBC connection object}
+
+\item{changed.only}{logical, default is FALSE, if TRUE "NEW" and "STOP"
+records will be igored in the result}
+}
+\value{
+The compared result data.frame.
 }
 \description{
-Title
+Consecutive tow days' discount rate will be compared and returned the result.
+}
+\details{
+The param \code{date} is the later day of compared two days, if missed, then
+the function will automatically find the latest two days in database. If date
+is given, then the function will find its previous day in database, if it
+cannot be found, errors are thrown.
+
+For the comparison, the records only exist in the "old" will be marked as
+"STOP", and the records only exist in the "new" will be marked as "New".
+The records exist in two will be computed the change. The result data.frame
+contains only the "NEW", "STOP" and which changes are not equal to 0.
+Of course, "NEW" and "STOP" records can also be igored in the result with
+the param.
 }
 

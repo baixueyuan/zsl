@@ -1,13 +1,29 @@
-#' Title
+#' Compare Two Days' Difference of zsl Data
 #'
-#' @param date
-#' @param ch
+#' Consecutive tow days' discount rate will be compared and returned the result.
 #'
-#' @return
+#' The param \code{date} is the later day of compared two days, if missed, then
+#' the function will automatically find the latest two days in database. If date
+#' is given, then the function will find its previous day in database, if it
+#' cannot be found, errors are thrown.
+#'
+#' For the comparison, the records only exist in the "old" will be marked as
+#' "STOP", and the records only exist in the "new" will be marked as "New".
+#' The records exist in two will be computed the change. The result data.frame
+#' contains only the "NEW", "STOP" and which changes are not equal to 0.
+#' Of course, "NEW" and "STOP" records can also be igored in the result with
+#' the param.
+#'
+#' @param date the later date of compared two days, the previous day can be
+#'   detected automatically
+#' @param ch RODBC connection object
+#' @param changed.only logical, default is FALSE, if TRUE "NEW" and "STOP"
+#'   records will be igored in the result
+#'
+#' @return The compared result data.frame.
 #' @export
 #'
-zslTwoDayDiff <- function(date, ch) {
-
+zslTwoDayDiff <- function(date, ch, changed.only=FALSE) {
 
   # 从全局环境中获取“ch”数据库连接对象
   if (missing(ch)) {
@@ -45,6 +61,10 @@ zslTwoDayDiff <- function(date, ch) {
                                'WHERE date="', day2, '"', sep=''),
                          stringsAsFactors=FALSE)
 
+  # 构建新的数据框计算两日的差异
+  # 以代码“code”合并新旧两日数据，用NA查找缺失的数据，旧列缺失为新增“NEW”
+  # 就列缺失说明是已停止“STOP”，将为NA的折算率赋值为0
+  # 计算两日差异，去掉变动为0的行，新数据框按照变动幅度由低到高排列
   comp <- merge(old, new, by='code', suffixes=c('_old', '_new'), all=TRUE)
   comp$mark <- ''
   comp$mark[is.na(comp$ratio_new)] <- 'STOP'
@@ -59,5 +79,11 @@ zslTwoDayDiff <- function(date, ch) {
     dplyr::filter(chg != 0) %>%
     dplyr::arrange(mark, chg) %>%
     dplyr::select(code, name, ratio_old, ratio_new, chg, mark)
+  # 可选择只保留变动了的行，去掉新增和停止的记录
+  if (changed.only) {
+    res <- res %>%
+      dplyr::filter(mark=='') %>%
+      dplyr::select(-mark)
+  }
   return(res)
 }
