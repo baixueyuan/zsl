@@ -45,7 +45,7 @@ zslUpdateDB <- function(ch, date, folder='', delete.file=TRUE) {
         i <- as.Date(i, origin='1970-01-01')
         qry <- paste('DELETE FROM zsl WHERE date="', i, '"', sep='')
         RODBC::sqlQuery(ch, qry)
-        cat('\nThe records of', as.Date(i, origin='1970-01-01'),
+        cat('\nThe records of', format(i, format='%Y/%m/%d'),
             'has been deleted')
       }
     }

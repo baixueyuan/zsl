@@ -14,16 +14,35 @@
 #' Of course, "NEW" and "STOP" records can also be igored in the result with
 #' the param.
 #'
+#' There are two params can be used to filter the result. If \code{scale} is set
+#' to a number other than 0, the records change bigger than the "scale" will be
+#' reserved, others are deleted, but this has no effect on "NEW" and "STOP"
+#' records. Pay attention, according to the convention, here we use Xbp concept
+#' which is prevailing in the bond market. For example, if scale is set to 5,
+#' meaning all the records change bigger than 0.05% are reserved, or you can
+#' see in the result data.frame. However, you see 0.05 or bigger change in the
+#' data.frame, and, of course, -0.05 or smaller, that is to say, scale is an
+#' absolute scale.
+#'
+#' The other filtering param is \code{mark.label}. Param \code{scale} just has effect
+#' on the records other than "NEW" and "STOP", so you can filter them with
+#' \code{mark.label}.
+#'
 #' @param date the later date of compared two days, the previous day can be
 #'   detected automatically
 #' @param ch RODBC connection object
 #' @param changed.only logical, default is FALSE, if TRUE "NEW" and "STOP"
 #'   records will be igored in the result
+#' @param scale the scale of the change, default is 0, that's meaning it does
+#'   not work, see the details
+#' @param mark.label charater, can only be '', 'NEW' or 'STOP', used to filter the
+#'   mark column, see the details
 #'
 #' @return The compared result data.frame.
 #' @export
 #'
-zslTwoDayDiff <- function(date, ch, changed.only=FALSE) {
+zslTwoDayDiff <- function(date, ch, changed.only=FALSE, scale=0,
+                          mark.label=NULL) {
 
   # 从全局环境中获取“ch”数据库连接对象
   if (missing(ch)) {
@@ -85,5 +104,19 @@ zslTwoDayDiff <- function(date, ch, changed.only=FALSE) {
       dplyr::filter(mark=='') %>%
       dplyr::select(-mark)
   }
+
+  # 对结果的筛选功能
+  if (as.numeric(scale) && scale > 0 && scale <= 30) {
+    res <- dplyr::filter(res, abs(chg) >= scale/100 | mark !='')
+  }
+  if (!changed.only && !is.null(mark.label)) {
+    if (mark %in% c('', 'NEW', 'STOP')) {
+      res <- dplyr::filter(res, mark == mark.label)
+    } else {
+      message('Param "mark" should be "", "New" or "STOP", otherwise it\'s useless.')
+    }
+  }
+  cat('The differences of', format(day1, format='%Y/%m/%d'), 'and',
+      format(day2, format='%Y/%m/%d'), 'have been computed.\n')
   return(res)
 }

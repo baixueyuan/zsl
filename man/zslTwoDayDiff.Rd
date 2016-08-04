@@ -4,7 +4,8 @@
 \alias{zslTwoDayDiff}
 \title{Compare Two Days' Difference of zsl Data}
 \usage{
-zslTwoDayDiff(date, ch, changed.only = FALSE)
+zslTwoDayDiff(date, ch, changed.only = FALSE, scale = 0,
+  mark.label = NULL)
 }
 \arguments{
 \item{date}{the later date of compared two days, the previous day can be
@@ -14,6 +15,12 @@ detected automatically}
 
 \item{changed.only}{logical, default is FALSE, if TRUE "NEW" and "STOP"
 records will be igored in the result}
+
+\item{scale}{the scale of the change, default is 0, that's meaning it does
+not work, see the details}
+
+\item{mark.label}{charater, can only be '', 'NEW' or 'STOP', used to filter the
+mark column, see the details}
 }
 \value{
 The compared result data.frame.
@@ -33,5 +40,19 @@ The records exist in two will be computed the change. The result data.frame
 contains only the "NEW", "STOP" and which changes are not equal to 0.
 Of course, "NEW" and "STOP" records can also be igored in the result with
 the param.
+
+There are two params can be used to filter the result. If \code{scale} is set
+to a number other than 0, the records change bigger than the "scale" will be
+reserved, others are deleted, but this has no effect on "NEW" and "STOP"
+records. Pay attention, according to the convention, here we use Xbp concept
+which is prevailing in the bond market. For example, if scale is set to 5,
+meaning all the records change bigger than 0.05% are reserved, or you can
+see in the result data.frame. However, you see 0.05 or bigger change in the
+data.frame, and, of course, -0.05 or smaller, that is to say, scale is an
+absolute scale.
+
+The other filtering param is \code{mark.label}. Param \code{scale} just has effect
+on the records other than "NEW" and "STOP", so you can filter them with
+\code{mark.label}.
 }
 

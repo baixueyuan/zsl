@@ -36,5 +36,4 @@ zslPeriodDiff <- function(day1, day2) {
   change <- res1[res1$chg != 0, ]
 }
 
-hist(change$chg, breaks=30, main='Change of zsl From Start of 2016',
-     xlab='Change of zsl')
+

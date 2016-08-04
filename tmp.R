@@ -1,17 +1,20 @@
 # 编译文挡，从注释到rds文件
 roxygen2::roxygenize()
 
-a=2
-while (a > 1) {
-  print(a)
-  a <- a + 1
-  if (a==10) break
-}
-
+# 每日更新折算率数据 ###########################################################
 rm(list=ls())
+library(zsl)
 ch <- RODBC::odbcConnect('research')
-zslUpdateDB(date=Sys.Date())
-zslTwoDayDiff()
+
+# 自动补齐未更新的数据
+zslUpdateDB()
+
+# 提取最新变动大于等于5bp的记录
+ztd <- zslTwoDayDiff(scale=5)
+
+
+
+
 
 file='files/20160729SZ.xls'
 system.time(tmp <- tidyData('files/20160729SZ.xls'))
@@ -35,3 +38,6 @@ df <- data.frame(
   num = c(1, 3, 4, 5, 4),
   stringsAsFactors = FALSE
 )
+
+hist(change$chg, breaks=30, main='Change of zsl From Start of 2016',
+     xlab='Change of zsl')
