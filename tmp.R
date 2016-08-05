@@ -10,7 +10,7 @@ ch <- RODBC::odbcConnect('research')
 zslUpdateDB()
 
 # 提取最新变动大于等于5bp的记录
-ztd <- zslTwoDayDiff(scale=5)
+ztd <- zslTwoDayDiff(changed.only = F)
 
 
 
@@ -41,3 +41,25 @@ df <- data.frame(
 
 hist(change$chg, breaks=30, main='Change of zsl From Start of 2016',
      xlab='Change of zsl')
+
+
+
+# zslTwoDayDiff with dplyr ###########
+system.time(comp <- dplyr::inner_join(old, new, by='code', suffix=c('_old', '_new')))
+system.time(comp1 <- merge(old, new, by='code', suffixes=c('_old', '_new'), all=FALSE))
+
+comp2 <- dplyr::mutate(comp, mark='')
+comp2 <- dplyr::mutate(comp, mark='NEW')
+
+
+dplyr::group_by(comp, is.na(name_old))
+
+comp3 <- dplyr::left_join(old, new)
+
+
+
+
+
+
+
+
