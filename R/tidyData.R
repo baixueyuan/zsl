@@ -93,5 +93,10 @@ tidyData <- function(file) {
     ## 删除重复行
     dplyr::distinct()
 
+  # 由于上交所债券ETF的折算率以100为基数给出，而不是1，统一至以1为基数
+  data[stringr::str_detect(data$name, 'ETF') & data$exchange=='SH',
+       'ratio'] <- data[stringr::str_detect(data$name, 'ETF') &
+                          data$exchange=='SH', 'ratio'] / 100
+
   return(data)
 }
