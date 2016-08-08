@@ -93,7 +93,7 @@ zslTwoDayDiff <- function(date, ch, changed.only=FALSE, scale=0,
   comp$name_old[is.na(comp$name_old)] <- comp$name_new[is.na(comp$name_old)]
   comp$name_new <- NULL
   colnames(comp)[2] <- 'name'
-  comp$chg <- comp$ratio_new - comp$ratio_old
+  comp$chg <- round(comp$ratio_new - comp$ratio_old, 2)
   res <- comp %>%
     dplyr::filter(chg != 0) %>%
     dplyr::arrange(mark, chg) %>%

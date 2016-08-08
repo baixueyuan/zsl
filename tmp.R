@@ -11,6 +11,7 @@ zslUpdateDB()
 
 # 提取最新变动大于等于5bp的记录
 ztd <- zslTwoDayDiff(changed.only = F)
+zslSaveToExcel(data=ztd)
 
 
 
@@ -24,11 +25,12 @@ writeToDB(tmp, ch, 'zsl', quiet=FALSE, delete.first=TRUE)
 
 # 将中文转为ASCII码
 str <- c(
-  '([代][码])',
-  '([名][称])',
-  '([折][算][率])',
-  '([开][始])',
-  '([结][束])'
+  '债券代码',
+  '债券简称',
+  '前折算率',
+  '新折算率',
+  '变动',
+  '备注'
 )
 cat(stringi::stri_escape_unicode(str), sep='\n')
 # 结果中的引号被转义，最好复制到Notepad++中稍作修改
@@ -56,10 +58,6 @@ dplyr::group_by(comp, is.na(name_old))
 
 comp3 <- dplyr::left_join(old, new)
 
-
-
-
-
-
+tmp <- ztd
 
 
