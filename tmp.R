@@ -61,3 +61,22 @@ comp3 <- dplyr::left_join(old, new)
 tmp <- ztd
 
 
+# 构建时间序列
+qry <- 'SELECT * FROM zsl WHERE date>="2016-08-01"'
+z <- sqlQuery(ch, qry, stringsAsFactors=FALSE)
+z1 <- head(z, 50)
+z1$seq <- apply(z1, 1, function(x) {
+  if (x[['start']]==x[['end']]) {
+    return(x[['start']])
+  } else {
+    seq <- seq.Date(from=as.Date(x[['start']]),
+                    to=as.Date(x[['end']]),
+                    by='1 day')
+    seq <- paste(seq, collapse = ',')
+    return(seq)
+  }
+})
+
+z2 <- tidyr::separate_rows(z1, seq, sep=',') %>%
+  dplyr::select(code, name, ratio, day=seq)
+
