@@ -107,5 +107,5 @@ writeToSQL <- function(data, sql.file, table, append=TRUE) {
   qry <- gsub('NA,', 'NULL,', qry)
   qry <- paste('INSERT INTO ', table, ' VALUES(', qry, ');', sep='')
   write.table(qry, file=sql.file, append=append, quote=FALSE,
-              row.names=FALSE, col.names=FALSE)
+              row.names=FALSE, col.names=FALSE, fileEncoding='UTF-8')
 }

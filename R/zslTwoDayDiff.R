@@ -46,28 +46,21 @@ zslTwoDayDiff <- function(date, ch, changed.only=FALSE, scale=0,
 
   # 从全局环境中获取“ch”数据库连接对象
   if (missing(ch)) {
-    ch <- get('ch', envir=.GlobalEnv)
-  } else {
-    stop('The RODBC connection should be given, or named "ch" in global.')
+    if (exists('ch', envir=.GlobalEnv)) {
+      ch <- get('ch', envir=.GlobalEnv)
+    } else {
+      stop('The RODBC connection should be given, or named "ch" in global.')
+    }
   }
 
   # 确定要比较的前后两个日期
   if (missing(date)) {
-    qry <- 'SELECT date FROM zsl GROUP BY date ORDER BY date DESC LIMIT 2'
-    dates <- RODBC::sqlQuery(ch, qry)
-    day1 <- dates[2, 1]
-    day2 <- dates[1, 1]
+    qry <- 'SELECT date FROM lastday'
+    day2 <- RODBC::sqlQuery(ch, qry, stringsAsFactors=FALSE)[1,1]
+    day1 <- exdate[which(exdate==day2) - 1]
   } else {
-    date <- as.Date(date)
-    qry <- paste('SELECT date FROM zsl WHERE date<="', date,
-                 '" GROUP BY date ORDER BY date DESC LIMIT 2', sep='')
-    dates <- RODBC::sqlQuery(ch, qry)
-    if (nrow(dates)==2) {
-      day1 <- dates[2, 1]
-      day2 <- dates[1, 1]
-    } else {
-      stop('Please make sure that the date given is correct.')
-    }
+    day2 <- as.Date(date)
+    day1 <- exdate[which(exdate==day2) - 1]
   }
 
   # 提取新旧比较数据
@@ -79,6 +72,13 @@ zslTwoDayDiff <- function(date, ch, changed.only=FALSE, scale=0,
                          paste('SELECT code,name,ratio FROM zsl ',
                                'WHERE date="', day2, '"', sep=''),
                          stringsAsFactors=FALSE)
+  # 比较提取的两日的数据记录条数，如果差异过大则提示，此处的标准是记录相对少的
+  # 一天不低于记录相对多的80%
+  len1 <- nrow(old)
+  len2 <- nrow(new)
+  if (min(len1, len2) < max(len1, len2) * 0.8) {
+    message('The records of two days are significantly different in amount.')
+  }
 
   # 构建新的数据框计算两日的差异
   # 以代码“code”合并新旧两日数据，用NA查找缺失的数据，旧列缺失为新增“NEW”
@@ -106,9 +106,11 @@ zslTwoDayDiff <- function(date, ch, changed.only=FALSE, scale=0,
   }
 
   # 对结果的筛选功能
+  ## 参数scale限定某个变动范围以上的记录才被保留，但不影响新增或停止的记录
   if (as.numeric(scale) && scale > 0 && scale <= 30) {
     res <- dplyr::filter(res, abs(chg) >= scale/100 | mark !='')
   }
+  ## 参数mark.label指定查看“NEW”、“STOP”或mark为空的记录，输入其他字符串无作用
   if (!changed.only && !is.null(mark.label)) {
     if (mark %in% c('', 'NEW', 'STOP')) {
       res <- dplyr::filter(res, mark == mark.label)
@@ -116,7 +118,10 @@ zslTwoDayDiff <- function(date, ch, changed.only=FALSE, scale=0,
       message('Param "mark" should be "", "New" or "STOP", otherwise it\'s useless.')
     }
   }
+
+  # 显示对比日的信息
   cat('The differences of', format(day1, format='%Y/%m/%d'), 'and',
       format(day2, format='%Y/%m/%d'), 'have been computed.\n')
+
   return(res)
 }

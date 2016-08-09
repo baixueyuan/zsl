@@ -22,14 +22,16 @@ zslUpdateDB <- function(ch, date, folder='', delete.file=TRUE) {
 
   # 从全局环境中获取“ch”数据库连接对象
   if (missing(ch)) {
-    ch <- get('ch', envir=.GlobalEnv)
-  } else {
-    stop('The RODBC connection should be given, or named "ch" in global.')
+    if (exists('ch', envir=.GlobalEnv)) {
+      ch <- get('ch', envir=.GlobalEnv)
+    } else {
+      stop('The RODBC connection should be given, or named "ch" in global.')
+    }
   }
 
   # 获取日期
   if (missing(date)) {
-    qry <- 'SELECT MAX(date) FROM zsl'
+    qry <- 'SELECT MAX(annce) FROM zsl'
     date <- RODBC::sqlQuery(ch, qry, stringsAsFactors=FALSE)[1,1] + 1
   } else {
     date <- as.Date(date)
@@ -43,7 +45,7 @@ zslUpdateDB <- function(ch, date, folder='', delete.file=TRUE) {
     if (length(date_list) > 0) {
       for (i in date_list) {
         i <- as.Date(i, origin='1970-01-01')
-        qry <- paste('DELETE FROM zsl WHERE date="', i, '"', sep='')
+        qry <- paste('DELETE FROM zsl WHERE annce="', i, '"', sep='')
         RODBC::sqlQuery(ch, qry)
         cat('\nThe records of', format(i, format='%Y/%m/%d'),
             'has been deleted')

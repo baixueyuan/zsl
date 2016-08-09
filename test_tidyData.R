@@ -22,15 +22,15 @@ tidyData <- function(file) {
 
   # 提取文件日期
   file_s <- stringr::str_extract(file, '([[:alnum:]]{10})\\.xls')
-  if (is.na(annce <-
+  if (is.na(date <-
             as.numeric(stringr::str_extract(file_s, '^[[:digit:]]{8}')))) {
     stop('The file name given is NOT following the rule.')
   }
 
-  if (annce < 20050518) {
-    stop('The annce date should be later than May 18th, 2005.')
+  if (date < 20050518) {
+    stop('The date should be later than May 18th, 2005.')
   } else {
-    annce <- lubridate::ymd(annce)
+    date <- lubridate::ymd(date)
   }
 
   # 判断交易所是哪一个
@@ -75,53 +75,28 @@ tidyData <- function(file) {
     dplyr::mutate(
       start = stringr::str_replace(start, ' 00:00:00', '') %>% lubridate::ymd(),
       end = stringr::str_replace(end, ' 00:00:00', '') %>% lubridate::ymd(),
-      code1 = code,
+      serial = paste('ZS', format(date, format='%Y%m%d'), 'ST',
+                     format(start, format='%m%d'),
+                     exchange, code, sep=''),
       code = paste(code, exchange, sep='.'),
       name = name %>%
         stringr::str_trim(side="both") %>%
         stringr::str_replace(stringr::fixed('*failed to decode utf16*'), ''),
       ratio = sapply(ratio, function(x) if (is.na(x)) 0 else x) %>% as.numeric,
       exchange = exchange,
-      annce = annce
-    )# %>%
+      date = date
+    ) %>%
     ## 整理列
-    # dplyr::select(
-    #   exchange, annce, code, name, ratio, start, end
-    # )
+    dplyr::select(
+      serial, exchange, date, code, name, ratio, start, end
+    ) %>%
+    ## 删除重复行
+    dplyr::distinct()
 
   # 由于上交所债券ETF的折算率以100为基数给出，而不是1，统一至以1为基数
   data[stringr::str_detect(data$name, 'ETF') & data$exchange=='SH',
        'ratio'] <- data[stringr::str_detect(data$name, 'ETF') &
                           data$exchange=='SH', 'ratio'] / 100
-
-  # 调整列：
-  ## 如果开始可结束日期相同，则返回这个日期作为生效日
-  ## 如果开始和结束日期不同，则以他们为开始和结束返回一个日期序列，以“,”分隔
-  ## 用seperate_rows函数按照这个列进行拆分，每行都为一个单一日期
-  ## 日期序列从交易所日期序列“exdate”中提取，因此所有日期比为交易日
-  data$date <- apply(data, 1, function(x) {
-    if (x[['start']]==x[['end']]) {
-      return(x[['start']])
-    } else {
-      seq <- exdate[exdate >= min(as.Date(c(x[['start']], x[['end']]))) &
-                    exdate <= max(as.Date(c(x[['start']], x[['end']])))]
-      seq <- paste(seq, collapse = ',')
-      return(seq)
-    }
-  })
-  data <- tidyr::separate_rows(data, date, sep=',')# %>%
-    # dplyr::select(exchange, code, name, annce, date, ratio)
-
-  data$date <- as.Date(data$date)
-
-  data$serial <- paste('ZS', format(data$annce, format='%Y%m%d'), 'ST',
-                       format(data$date, format='%m%d'),
-                       data$exchange, data$code1, sep='')
-
-  data <-
-    dplyr::select(data, serial, exchange, code, name, annce, date, ratio) %>%
-    ## 删除重复行
-    dplyr::distinct()
 
   return(data)
 }

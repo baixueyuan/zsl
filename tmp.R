@@ -5,19 +5,21 @@ roxygen2::roxygenize()
 rm(list=ls())
 library(zsl)
 ch <- RODBC::odbcConnect('research')
+local <- RODBC::odbcConnect('local')
 
 # 自动补齐未更新的数据
 zslUpdateDB()
+# zslUpdateDB(ch=local)
 
 # 提取最新变动大于等于5bp的记录
-ztd <- zslTwoDayDiff(changed.only = F)
+ztd <- zslTwoDayDiff()
 zslSaveToExcel(data=ztd)
 
+dl <- zslCombineList()[c(1,2),]
+zslDownFile(dl)
 
 
-
-
-file='files/20160729SZ.xls'
+file='20160808SH.xls'
 system.time(tmp <- tidyData('files/20160729SZ.xls'))
 system.time(tmp <- tidyData('files/20160729SH.xls'))
 writeToDB(tmp, ch, 'zsl', quiet=FALSE, delete.first=TRUE)
@@ -60,23 +62,41 @@ comp3 <- dplyr::left_join(old, new)
 
 tmp <- ztd
 
+exdate <- as.Date(read.csv('ex_date.csv')[[1]])
+save(exdate, file='data/exdate.RData')
+start <- as.Date('2016-08-05')
+end <- as.Date('2016-08-08')
+exdate[exdate >=start & exdate <= end]
 
-# 构建时间序列
-qry <- 'SELECT * FROM zsl WHERE date>="2016-08-01"'
-z <- sqlQuery(ch, qry, stringsAsFactors=FALSE)
-z1 <- head(z, 50)
-z1$seq <- apply(z1, 1, function(x) {
-  if (x[['start']]==x[['end']]) {
-    return(x[['start']])
+
+# 调整数据库端 ### 已调整
+zzz <- read.csv('zzz.txt', quote = '', fileEncoding = 'utf8',
+                stringsAsFactors = F)
+zzz$annce <- as.Date(zzz$annce)
+zzz$start <- as.Date(zzz$start)
+zzz$end <- as.Date(zzz$end)
+zzz$date <- apply(zzz, 1, function(x) {
+  if (x[['start']]<=x[['end']]){
+    seq <- exdate[exdate >= as.Date(x[['start']]) &
+                    exdate <= as.Date(x[['end']])]
   } else {
-    seq <- seq.Date(from=as.Date(x[['start']]),
-                    to=as.Date(x[['end']]),
-                    by='1 day')
-    seq <- paste(seq, collapse = ',')
-    return(seq)
+    seq <- exdate[exdate <= as.Date(x[['start']]) &
+                    exdate >= as.Date(x[['end']])]
   }
-})
 
-z2 <- tidyr::separate_rows(z1, seq, sep=',') %>%
-  dplyr::select(code, name, ratio, day=seq)
+  seq <- paste(seq, collapse = ',')
+  return(seq)
+})
+# cnt <- stringr::str_count(zzz$date, ',')
+zzz <- tidyr::separate_rows(zzz, date, sep=',') %>%
+  dplyr::select(serial, exchange, code, name, annce, date, ratio) %>%
+  ## 删除重复行
+  dplyr::distinct()
+
+zzz$date <- as.Date(zzz$date)
+zzz$serial <- paste('ZS', format(zzz$annce, format='%Y%m%d'), 'ST',
+               format(zzz$date, format='%m%d'),
+               exchange, zzz$code, sep='')
+zzz$serial <- substring(zzz$serial, 1, 24)
+writeToDB(zzz, channel, 'zsl', F)
 
