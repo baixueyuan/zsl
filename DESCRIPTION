@@ -8,14 +8,14 @@ Maintainer: Bai Xueyuan <bai_xueyuan@msn.com>
 Description: Download and manipulate discount rate of bond from China Clear.
 Depends:
     R (>= 3.1.0),
-    magrittr
+    magrittr,
+    XLConnect
 Imports:
   xml2,
   stringr,
   RODBC,
   dplyr,
-  lubridate,
-  XLConnect
+  lubridate
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1

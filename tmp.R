@@ -5,7 +5,7 @@ roxygen2::roxygenize()
 rm(list=ls())
 library(zsl)
 ch <- RODBC::odbcConnect('research')
-local <- RODBC::odbcConnect('local')
+# local <- RODBC::odbcConnect('local')
 
 # 自动补齐未更新的数据
 zslUpdateDB()
