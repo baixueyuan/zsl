@@ -24,7 +24,7 @@ and the exchange. These will be two columns.
 
 There is another important column called "serial" which will be the primary
 key of database. It is organized as the following rule: "ZS" + file date +
-"ST" + start date (month day) + exchange + code. Such rule will make sure
+"ST" + effects date (month day) + exchange + code. Such rule will make sure
 that there is no duplicated record by eliminating the duplicated rows.
 }
 

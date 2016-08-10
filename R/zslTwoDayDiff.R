@@ -3,9 +3,10 @@
 #' Consecutive tow days' discount rate will be compared and returned the result.
 #'
 #' The param \code{date} is the later day of compared two days, if missed, then
-#' the function will automatically find the latest two days in database. If date
-#' is given, then the function will find its previous day in database, if it
-#' cannot be found, errors are thrown.
+#' the function will automatically find the latest two days. First, the function
+#' will query the "last day" from the database, that is the day which appears
+#' most in the lastest annoncement. Then, the function uses the trading day
+#' series to find the previous day, which is used to make the comparison.
 #'
 #' For the comparison, the records only exist in the "old" will be marked as
 #' "STOP", and the records only exist in the "new" will be marked as "New".
