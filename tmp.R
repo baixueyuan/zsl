@@ -4,8 +4,8 @@ roxygen2::roxygenize()
 # 每日更新折算率数据 ###########################################################
 rm(list=ls())
 library(zsl)
-ch <- RODBC::odbcConnect('research')
-# local <- RODBC::odbcConnect('local')
+RODBC::odbcCloseAll(); ch <- RODBC::odbcConnect('research')
+RODBC::odbcCloseAll(); ch <- RODBC::odbcConnect('local')
 
 # 自动补齐未更新的数据
 zslUpdateDB()
@@ -14,6 +14,7 @@ zslUpdateDB()
 # 提取最新变动大于等于5bp的记录
 ztd <- zslTwoDayDiff()
 zslSaveToExcel(data=ztd)
+zsp <- zslPeriodDiff('2016-07-12', '2016-08-12')
 
 dl <- zslCombineList()[c(1,2),]
 zslDownFile(dl)
@@ -99,4 +100,38 @@ zzz$serial <- paste('ZS', format(zzz$annce, format='%Y%m%d'), 'ST',
                exchange, zzz$code, sep='')
 zzz$serial <- substring(zzz$serial, 1, 24)
 writeToDB(zzz, channel, 'zsl', F)
+
+system.time({
+# 优化区间差
+dat <- RODBC::sqlQuery(ch,
+                       paste('SELECT date,code,ratio FROM zsl ',
+                             'WHERE date BETWEEN "', day1, '" AND "',
+                             day2, '"', sep=''),
+                       stringsAsFactors=FALSE) %>%
+  as_tibble %>%
+  filter(ratio != 0)
+})
+
+oneline <- filter(count(group_by(dat, code)), n==1)$code
+
+datt <- lapply(unique(dat$code), function(x) {
+  filter(dat, code==x) %>%
+    filter(date==max(date) | date==min(date)) %>%
+    arrange(date)
+}) %>%
+  bind_rows() %>%
+  filter(!code %in% oneline) %>%
+  mutate(day=rep(c('day1', 'day2'), times=nrow(.)/2))
+
+res <- bind_cols(
+  filter(datt, day=='day1'),
+  filter(datt, day=='day2') %>% select(date, ratio)
+) %>%
+  set_colnames(c('date_old', 'code', 'ratio_old', 'day', 'date_late', 'ratio_late')) %>%
+  select(code, date_old, ratio_old, date_late, ratio_late) %>%
+  mutate(period=as.numeric(date_late - date_old),
+         change=round(as.numeric(ratio_late - ratio_old), 2)
+         ) %>%
+  filter(change != 0) %>%
+  arrange(change)
 
