@@ -14,11 +14,14 @@
 #'
 #' @param day1 the start of the period, Date object of like "YYYY-MM-DD"
 #' @param day2 the end of the period, Date object of like "YYYY-MM-DD"
+#' @param ch RODBC connection object
+#' @param scale the scale of the change, default is 0, that's meaning it does
+#'   not work, see the details of \link{\code{zslTwoDayDiff}}
 #'
 #' @return Tibble data.frame containing the change of the period.
 #' @export
 
-zslPeriodDiff <- function(day1, day2, ch) {
+zslPeriodDiff <- function(day1, day2, ch, scale=0) {
   # 本函数用来比较给定两个日期之间的折算率变化
 
   # 处理比较日期
@@ -44,35 +47,41 @@ zslPeriodDiff <- function(day1, day2, ch) {
                                'WHERE date BETWEEN "', day1, '" AND "',
                                day2, '"', sep=''),
                          stringsAsFactors=FALSE) %>%
-    as_tibble %>%
-    filter(ratio != 0)
+    tibble::as_tibble() %>%
+    dplyr::filter(ratio != 0)
 
   ## 找到只有一条记录的代码，需要剔除
-  oneline <- filter(count(group_by(dat, code)), n==1)$code
+  oneline <- dplyr::filter(dplyr::count(dplyr::group_by(dat, code)), n==1)$code
 
   ## 提取区间内每个代买对应的首日和末日
   datt <- lapply(unique(dat$code), function(x) {
-    filter(dat, code==x) %>%
-      filter(date==max(date) | date==min(date)) %>%
-      arrange(date)
+    dplyr::filter(dat, code==x) %>%
+      dplyr::filter(date==max(date) | date==min(date)) %>%
+      dplyr::arrange(date)
   }) %>%
-    bind_rows() %>%
-    filter(!code %in% oneline) %>%
-    mutate(day=rep(c('day1', 'day2'), times=nrow(.)/2))
+    dplyr::bind_rows() %>%
+    dplyr::filter(!code %in% oneline) %>%
+    dplyr::mutate(day=rep(c('day1', 'day2'), times=nrow(.)/2))
 
   ## 组合新的数据框并计算区间天数（period）和折算率变化（change)
-  res <- bind_cols(
-    filter(datt, day=='day1'),
-    filter(datt, day=='day2') %>% select(date, ratio)
+  res <- dplyr::bind_cols(
+    dplyr::filter(datt, day=='day1'),
+    dplyr::filter(datt, day=='day2') %>% dplyr::select(date, ratio)
   ) %>%
     set_colnames(c('date_old', 'code', 'name', 'ratio_old', 'day', 'date_late',
                    'ratio_late')) %>%
-    select(code, name, date_old, ratio_old, date_late, ratio_late) %>%
-    mutate(period=as.numeric(date_late - date_old),
+    dplyr::select(code, name, date_old, ratio_old, date_late, ratio_late) %>%
+    dplyr::mutate(period=as.numeric(date_late - date_old),
            change=round(as.numeric(ratio_late - ratio_old), 2)
     ) %>%
-    filter(change != 0) %>%
-    arrange(change)
+    dplyr::filter(change != 0) %>%
+    dplyr::arrange(change)
+
+  # 对结果的筛选功能
+  ## 参数scale限定某个变动范围以上的记录才被保留，但不影响新增或停止的记录
+  if (as.numeric(scale) && scale > 0 && scale <= 30) {
+    res <- dplyr::filter(res, abs(chg) >= scale/100)
+  }
 
   return(res)
 }
