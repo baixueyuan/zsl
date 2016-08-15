@@ -4,3 +4,4 @@
 ^.*tmp.*\.R$
 ^.*test.*\.R$
 ^.*\.xls$
+^ex_date.csv$

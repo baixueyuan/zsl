@@ -4,12 +4,17 @@
 \alias{zslPeriodDiff}
 \title{Compute the zsl Change of a Period}
 \usage{
-zslPeriodDiff(day1, day2, ch)
+zslPeriodDiff(day1, day2, ch, scale = 0)
 }
 \arguments{
 \item{day1}{the start of the period, Date object of like "YYYY-MM-DD"}
 
 \item{day2}{the end of the period, Date object of like "YYYY-MM-DD"}
+
+\item{ch}{RODBC connection object}
+
+\item{scale}{the scale of the change, default is 0, that's meaning it does
+not work, see the details of \link{\code{zslTwoDayDiff}}}
 }
 \value{
 Tibble data.frame containing the change of the period.
