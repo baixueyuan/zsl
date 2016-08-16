@@ -10,6 +10,10 @@
 #' the bonds have more than two days' records, therefore, those with one record
 #' are thought to be unqualified for period computation, and deleted.
 #'
+#' If params "day1" and "day2" are missed, the function will get the "last day"
+#' of the database, and retrieve a "period" data. The period is set to 30 in
+#' default, and can be changed by param \code{period}.
+#'
 #' For the result, only the bonds with change other than "0" will be reserved.
 #'
 #' @param day1 the start of the period, Date object of like "YYYY-MM-DD"
@@ -17,19 +21,13 @@
 #' @param ch RODBC connection object
 #' @param scale the scale of the change, default is 0, that's meaning it does
 #'   not work, see the details of \link{\code{zslTwoDayDiff}}
+#' @param period the default period in days
 #'
 #' @return Tibble data.frame containing the change of the period.
 #' @export
 
-zslPeriodDiff <- function(day1, day2, ch, scale=0) {
+zslPeriodDiff <- function(day1, day2, ch, scale=0, period=30L) {
   # 本函数用来比较给定两个日期之间的折算率变化
-
-  # 处理比较日期
-  # day1='2016-04-01'
-  # day2='2016-06-30'
-  day1 <- as.Date(day1)
-  day2 <- as.Date(day2)
-  if (day1 >= day2) stop('Date "day1" should be earlier than "day2".')
 
   # 从全局环境中获取“ch”数据库连接对象
   if (missing(ch)) {
@@ -38,6 +36,16 @@ zslPeriodDiff <- function(day1, day2, ch, scale=0) {
     } else {
       stop('The RODBC connection should be given, or named "ch" in global.')
     }
+  }
+
+  # 处理比较日期，如果日期没有给出则自动计算一个区间，默认为最近30天
+  if (missing(day1) && missing(day2)) {
+    day2 <- RODBC::sqlQuery(ch, 'SELECT date FROM lastday')[1, 1]
+    day1 <- day2 - as.integer(period)
+  } else {
+    day1 <- as.Date(day1)
+    day2 <- as.Date(day2)
+    if (day1 >= day2) stop('Date "day1" should be earlier than "day2".')
   }
 
   # 提取新旧比较数据

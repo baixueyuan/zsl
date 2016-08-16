@@ -16,7 +16,8 @@ Imports:
   RODBC,
   dplyr,
   lubridate,
-  tidyr
+  tidyr,
+  xts
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1

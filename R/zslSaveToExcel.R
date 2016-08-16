@@ -28,10 +28,10 @@
 #'
 #' @return No obvious return, the data will be saved to Excel file.
 #'
-#' @name savetoexcel
+#' @name SaveToExcel
 NULL
 
-#' @rdname savetoexcel
+#' @rdname SaveToExcel
 #' @export
 zslSaveToExcel <- function(data, output.file='zsl.xlsx', assign=FALSE) {
 

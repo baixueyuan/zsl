@@ -4,7 +4,7 @@
 \alias{zslPeriodDiff}
 \title{Compute the zsl Change of a Period}
 \usage{
-zslPeriodDiff(day1, day2, ch, scale = 0)
+zslPeriodDiff(day1, day2, ch, scale = 0, period = 30L)
 }
 \arguments{
 \item{day1}{the start of the period, Date object of like "YYYY-MM-DD"}
@@ -15,6 +15,8 @@ zslPeriodDiff(day1, day2, ch, scale = 0)
 
 \item{scale}{the scale of the change, default is 0, that's meaning it does
 not work, see the details of \link{\code{zslTwoDayDiff}}}
+
+\item{period}{the default period in days}
 }
 \value{
 Tibble data.frame containing the change of the period.
@@ -30,6 +32,10 @@ First of all, the records with "0" ratio are deleted, because those are
 going to be unlisted from the market, not worth consideration. Then, not all
 the bonds have more than two days' records, therefore, those with one record
 are thought to be unqualified for period computation, and deleted.
+
+If params "day1" and "day2" are missed, the function will get the "last day"
+of the database, and retrieve a "period" data. The period is set to 30 in
+default, and can be changed by param \code{period}.
 
 For the result, only the bonds with change other than "0" will be reserved.
 }

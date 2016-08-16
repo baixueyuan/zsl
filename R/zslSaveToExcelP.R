@@ -1,4 +1,4 @@
-#' @rdname savetoexcel
+#' @rdname SaveToExcel
 #' @export
 
 zslSaveToExcelP <- function(data, wb, output.file='zsl.xlsx') {
