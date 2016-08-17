@@ -4,11 +4,13 @@
 \alias{zslCombineList}
 \title{Get the File List From Now to the Given Date}
 \usage{
-zslCombineList(start)
+zslCombineList(start, num)
 }
 \arguments{
 \item{start}{the start date by which the function will get all files after
 this date}
+
+\item{num}{the start num which is used to "paste" the url, default is 2}
 }
 \value{
 The data.frame contains all files from now to the given date.
@@ -21,5 +23,16 @@ date.
 The given date should not be earlier than May 18th, 2005, that is the start
 date of the announcement of the discount rate. If the start date isn't given,
 the first page of file list is returned.
+
+The working mechanism of the function is as the following, the function first
+get the first page links, then check whether the given "start" date exists,
+if not, the function "paste" the url with "base_url" and "num", "num" starts
+from 2. The function get the download links with "num" continues as 2, 3, ...
+When the "start" date is found, the loop stops.
+
+There might be some duplicated file names, the function will \code{paste} a
+"p" before one of the duplicated file, or maybe more until there is no
+duplicated file name. However the file name if important when tidying data,
+adding prefix has no influence.
 }
 

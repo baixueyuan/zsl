@@ -19,6 +19,7 @@ to the MySQL database.
 }
 \details{
 The input file name must follow the rule, that is "date + exchange + .xls".
+(Of course, now it can also handle with "shtml" file.)
 The file name contains two necessary element for the result, the "file date"
 and the exchange. These will be two columns.
 

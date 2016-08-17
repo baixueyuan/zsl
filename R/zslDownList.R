@@ -29,7 +29,8 @@ zslDownList <- function(url) {
   xl <- xml2::read_html(url)
 
   # 设置文件名列表的XPath和日期的XPath并读取Node
-  xpath <- "//div[@class='pageTabContent']/ul/li/a[contains(@title, '折算率的通知')]"
+  # XPath设置查找含有“折算率的通知”的链接节点（<a>）
+  xpath <- "//div[@class='pageTabContent']/ul/li/a[contains(@title, '\u6298\u7b97\u7387\u7684\u901a\u77e5')]"
   xpathd <- "//div[@class='pageTabContent']/ul/li/span[@class='time']"
   li <- xml2::xml_find_all(xl, xpath)
   ind1 <- stringr::str_detect(xml2::xml_attr(li, 'href'), 'xls$')
@@ -39,11 +40,19 @@ zslDownList <- function(url) {
 
   # 获取日期
   annce <- lubridate::ymd(stringr::str_extract(title, '[[:digit:]]{8}'))
+  if (anyNA(annce)) {
+    index <- which(is.na(annce))
+    annce[index] <- xml2::xml_text(xml2::xml_find_all(xl, xpathd)[index])
+  }
 
   # 获取文件链接，其中上交所的没有给出前缀，需要补充
   href <- as.character(sapply(xml2::xml_attr(li, 'href'), function(x) {
     if (!stringr::str_detect(x, '^http')) {
-      return(paste('http://www.chinaclear.cn', x, sep=''))
+      hrf <- paste('http://www.chinaclear.cn', x, sep='')
+      if (stringr::str_detect(hrf, 'shtml$')) {
+        hrf <- stringr::str_replace(hrf, stringr::fixed('../..'), '')
+      }
+    return(hrf)
     } else {
       return(x)
     }
@@ -53,11 +62,13 @@ zslDownList <- function(url) {
   # 根据title，判断交易所
   exchange <- as.character(sapply(title, function(x) {
     if (stringr::str_detect(x, '\u6df1\u5733')) return('SZ')
+    if (stringr::str_detect(x, '\u6df1\u8bc1')) return('SZ')
     if (stringr::str_detect(x, '\u4e0a\u6d77')) return('SH')
   }))
 
   # 用日期和交易所组合成文件名
-  fn <- paste(format(annce, format='%Y%m%d'), exchange, '.xls', sep='')
+  suffix <- stringr::str_extract(href, '[^.]{3,5}$')
+  fn <- paste(format(annce, format='%Y%m%d'), exchange, '.', suffix, sep='')
 
   # 生成并返回完整列表
   dl_list <- data.frame(annce, exchange, fn, href, stringsAsFactors=FALSE)

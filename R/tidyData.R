@@ -5,6 +5,7 @@
 #' to the MySQL database.
 #'
 #' The input file name must follow the rule, that is "date + exchange + .xls".
+#' (Of course, now it can also handle with "shtml" file.)
 #' The file name contains two necessary element for the result, the "file date"
 #' and the exchange. These will be two columns.
 #'
@@ -20,8 +21,12 @@
 
 tidyData <- function(file) {
 
+  # 提取文件名后缀，“xls”和“shtml”采取不同的方式处理数据
+  ext <- stringr::str_extract(file, '[^.]{3,5}$')
+
   # 提取文件日期
-  file_s <- stringr::str_extract(file, '([[:alnum:]]{10})\\.xls')
+  # file_s <- stringr::str_extract(file, '([[:alnum:]]{10})\\.xls')
+  file_s <- stringr::str_extract(file, '([0-9]{8}[SHZ]{2})\\.(xls|shtml)')
   if (is.na(annce <-
             as.numeric(stringr::str_extract(file_s, '^[[:digit:]]{8}')))) {
     stop('The file name given is NOT following the rule.')
@@ -44,9 +49,21 @@ tidyData <- function(file) {
     }
   }
 
-  # 读取Excel文件
-  startRow <- switch(exchange, SZ=4, SH=3)
-  data <- XLConnect::readWorksheetFromFile(file, sheet=1, startRow=startRow)
+  # 读取文件
+  if (ext=='xls') {
+    startRow <- switch(exchange, SZ=4, SH=3)
+    data <- XLConnect::readWorksheetFromFile(file, sheet=1, startRow=startRow)
+  }
+
+  if (ext=='shtml') {
+    data <- XML::readHTMLTable(file, header=TRUE, stringsAsFactors=FALSE)[[1]]
+    if (exchange=='SH') {
+      colnames(data) <- data[1, ]
+      ind <- which(data[, 1]=='')
+      data <- dplyr::slice(data, -c(1, ind))
+    }
+  }
+
 
   # 设置需要保留列的正则表达式
   pattern <- paste(
@@ -75,7 +92,7 @@ tidyData <- function(file) {
     dplyr::mutate(
       start = stringr::str_replace(start, ' 00:00:00', '') %>% lubridate::ymd(),
       end = stringr::str_replace(end, ' 00:00:00', '') %>% lubridate::ymd(),
-      code1 = code,
+      code1 = as.character(code),
       code = paste(code, exchange, sep='.'),
       name = name %>%
         stringr::str_trim(side="both") %>%

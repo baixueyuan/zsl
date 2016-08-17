@@ -17,7 +17,8 @@ Imports:
   dplyr,
   lubridate,
   tidyr,
-  xts
+  xts,
+  httr
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1

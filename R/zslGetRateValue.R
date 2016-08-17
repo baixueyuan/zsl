@@ -158,9 +158,9 @@ zslGetBundle <- function(codes, start, end, ch) {
   }
 
   # 代码应为长度大于1的字符串
-  if (!is.character(codes) && !length(codes) > 1) {
-    stop('The param "code" should be "character" and the has more than one element.')
-  }
+  # if (!is.character(codes) && !length(codes) > 1) {
+  #   stop('The param "code" should be "character" and the has more than one element.')
+  # }
 
   # 用start和end构造一个时间序列
   start <- as.Date(start)
@@ -186,6 +186,7 @@ zslGetBundle <- function(codes, start, end, ch) {
 
   # 用矩阵和时间序列构建xts对象
   res <- xts::xts(ratios[, -1], dates)
+  colnames(res) <- 'sbond'
 
   return(res)
 }
