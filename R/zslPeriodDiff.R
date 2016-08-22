@@ -88,7 +88,7 @@ zslPeriodDiff <- function(day1, day2, ch, scale=0, period=30L) {
   # 对结果的筛选功能
   ## 参数scale限定某个变动范围以上的记录才被保留，但不影响新增或停止的记录
   if (as.numeric(scale) && scale > 0 && scale <= 30) {
-    res <- dplyr::filter(res, abs(chg) >= scale/100)
+    res <- dplyr::filter(res, abs(change) >= scale/100)
   }
 
   return(res)

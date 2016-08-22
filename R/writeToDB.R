@@ -92,7 +92,6 @@ writeToDB <- function(data, channel, table, quiet=TRUE, sql.out=FALSE,
 #'   existed file or appent to it
 #' @export
 
-
 writeToSQL <- function(data, sql.file, table, append=TRUE) {
   # 本函数直接将给定的数据框写入SQL文件
 

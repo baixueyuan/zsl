@@ -48,6 +48,19 @@ zslSaveToExcel <- function(data, output.file='zsl.xlsx', assign=FALSE) {
                      '\u53d8\u52a8',
                      '\u5907\u6ce8')
 
+  # 如果增加了债券信息，则增加列名称
+  # 此时的7到13列为“剩余期限”、“债项”、“主体”、“评级变动”、“债券类型”、“行业”
+  # 和“城投”
+  if (length(data)==13) {
+    colnames(data)[7:13] <- c('\u5269\u4f59\u671f\u9650',
+                              '\u503a\u9879',
+                              '\u4e3b\u4f53',
+                              '\u8bc4\u7ea7\u53d8\u52a8',
+                              '\u503a\u5238\u7c7b\u578b',
+                              '\u884c\u4e1a',
+                              '\u57ce\u6295')
+  }
+
   # 读取模板文件
   tmpl <- system.file('template', 'template.xlsx', package='zsl')
   wb <- XLConnect::loadWorkbook(tmpl)
@@ -69,32 +82,32 @@ zslSaveToExcel <- function(data, output.file='zsl.xlsx', assign=FALSE) {
   big <- XLConnect::getCellStyle(wb, 'zsl.Numeric.Big')
   bigger <- XLConnect::getCellStyle(wb, 'zsl.Numeric.Bigger')
   biggest <- XLConnect::getCellStyle(wb, 'zsl.Numeric.Biggest')
-  ind <- which(data[, 5] > 0.05 & data[, 5] <= 0.1 & data$mark=='')
+  ind <- which(data[, 5] > 0.05 & data[, 5] <= 0.1 & data[, 6]=='')
   if (length(ind) > 0) {
     for (i in ind)
       XLConnect::setCellStyle(wb, sheet='zsl', row=i+1, col=5, cellstyle=big)
   }
-  ind <- which(data[, 5] > 0.1 & data[, 5] <= 0.2 & data$mark=='')
+  ind <- which(data[, 5] > 0.1 & data[, 5] <= 0.2 & data[, 6]=='')
   if (length(ind) > 0) {
     for (i in ind)
       XLConnect::setCellStyle(wb, sheet='zsl', row=i+1, col=5, cellstyle=bigger)
   }
-  ind <- which(data[, 5] > 0.2 & data$mark=='')
+  ind <- which(data[, 5] > 0.2 & data[, 6]=='')
   if (length(ind) > 0) {
     for (i in ind)
       XLConnect::setCellStyle(wb, sheet='zsl', row=i+1, col=5, cellstyle=biggest)
   }
-  ind <- which(data[, 5] < -0.05 & data[, 5] >= -0.1 & data$mark=='')
+  ind <- which(data[, 5] < -0.05 & data[, 5] >= -0.1 & data[, 6]=='')
   if (length(ind) > 0) {
     for (i in ind)
       XLConnect::setCellStyle(wb, sheet='zsl', row=i+1, col=5, cellstyle=small)
   }
-  ind <- which(data[, 5] < -0.1 & data[, 5] >= -0.2 & data$mark=='')
+  ind <- which(data[, 5] < -0.1 & data[, 5] >= -0.2 & data[, 6]=='')
   if (length(ind) > 0) {
     for (i in ind)
       XLConnect::setCellStyle(wb, sheet='zsl', row=i+1, col=5, cellstyle=less)
   }
-  ind <- which(data[, 5] < -0.2 & data$mark=='')
+  ind <- which(data[, 5] < -0.2 & data[, 6]=='')
   if (length(ind) > 0) {
     for (i in ind)
       XLConnect::setCellStyle(wb, sheet='zsl', row=i+1, col=5, cellstyle=least)

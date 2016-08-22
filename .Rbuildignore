@@ -5,3 +5,4 @@
 ^.*test.*\.R$
 ^.*\.xls$
 ^ex_date.csv$
+README.md

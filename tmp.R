@@ -4,8 +4,9 @@ roxygen2::roxygenize()
 # 每日更新折算率数据 ###########################################################
 rm(list=ls())
 library(zsl)
+library(WindR)
 RODBC::odbcCloseAll(); ch <- RODBC::odbcConnect('research')
-RODBC::odbcCloseAll(); ch <- RODBC::odbcConnect('local')
+# RODBC::odbcCloseAll(); ch <- RODBC::odbcConnect('local')
 
 # 自动补齐未更新的数据
 zslUpdateDB()
@@ -13,9 +14,14 @@ zslUpdateDB()
 
 # 提取最新变动大于等于5bp的记录
 ztd <- zslTwoDayDiff()
+ztd <- zslAddBondInfo(ztd)
 zslSaveToExcel(data=ztd, assign=TRUE)
 zsp <- zslPeriodDiff(scale=5)
-zslSaveToExcelP(data=zsp, wb=wb)
+zsp <- zslAddBondInfo(zsp)
+zslSaveToExcelP(data=zsp, wb=wb, output.file='折算率20160822.xlsx')
+
+atl <- attributes(ztd)
+attributes(ztd) <- list(class='data.frame', date='2016-08-19')
 
 # 提取全部下载列表
 dl <- zslCombineList('2005-05-01')
@@ -23,14 +29,22 @@ dl1 <- filter(dl, annce < as.Date('2014-01-01'))
 dl2 <- zslDownFile(tail(dl1, 8), 'C:/DataWorks/zsl/files', overwrite=TRUE)
 files <- dir('C:/DataWorks/zsl/files')
 filelist <- paste('C:/DataWorks/zsl/files', files, sep='/')
-for (i in filelist) {
+shtml <- filelist[grep('\\.shtml$', filelist)]
+xls <- filelist[grep('\\.xls$', filelist)]
+for (i in xls) {
   i %>%
     tidyData() %>%
     writeToSQL('all.sql', 'zsl')
-  cat(i, ', ')
+  cat(i, '\n')
 }
 file='C:/DataWorks/zsl/files/20050608SH.shtml'
 tidyData(file)
+
+# 检查sql文件重复的情况
+sql <- readLines('all.sql')
+yd <-sql[which(stringr::str_detect(sql, ".*120101.SH.*"))]
+ydd <- RODBC::sqlQuery(ch, 'SELECT * FROM zsl WHERE code="120101.SH"')
+cat(format(zslCheckMissingDate(ydd), format='%Y-%m-%d'), sep='\n')
 
 # 计算区间的折算率和持仓总和
 codes <- c('122103.SH','122108.SH','122119.SH','122141.SH','122155.SH',
@@ -47,14 +61,8 @@ pos <- xts(ratios %*% dat$amt, index(ratios))
 
 # 将中文转为ASCII码 ###
 str <- c(
-  '债券代码',
-  '债券简称',
-  '起始日',
-  '起始折算率',
-  '结束日',
-  '结束折算率',
-  '天数',
-  '变动'
+  '地方政府债', '地方债',
+  '可交换债', '可交债'
 )
 cat(stringi::stri_escape_unicode(str), sep='\n')
 # 结果中的引号被转义，最好复制到Notepad++中稍作修改
@@ -105,3 +113,12 @@ tbl <- readHTMLTable(htm, header=TRUE, stringsAsFactors=FALSE)[[1]]
 
 url <- 'http://www.chinaclear.cn/zdjs/xbzzsl/center_flist_147.shtml'
 xml_text(xml_find_all(read_html(url), '/html/head/title'))
+
+
+# 处理重复的记录，主要为2008-10-15日的记录中120101和120203日期有错误
+sql <- readLines('all.sql')
+serial <- str_sub(sql, 25, 48)
+code <- str_sub(sql, 57, 65)
+str_extract(head(sql, 20), '[[:alnum:]]{1,4}$')
+value <- as.numeric(str_replace(sql, '^.*,([[:alnum:].]{1,4})\\);$', '\\1'))
+sql[code=='120101.SH' & value==0]

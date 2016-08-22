@@ -17,6 +17,19 @@ zslSaveToExcelP <- function(data, wb, output.file='zsl.xlsx') {
                       '\u5929\u6570',
                       '\u53d8\u52a8')
 
+  # 如果增加了债券信息，则增加列名称
+  # 此时的7到13列为“剩余期限”、“债项”、“主体”、“评级变动”、“债券类型”、“行业”
+  # 和“城投”
+  if (length(data)==15) {
+    colnames(data)[9:15] <- c('\u5269\u4f59\u671f\u9650',
+                              '\u503a\u9879',
+                              '\u4e3b\u4f53',
+                              '\u8bc4\u7ea7\u53d8\u52a8',
+                              '\u503a\u5238\u7c7b\u578b',
+                              '\u884c\u4e1a',
+                              '\u57ce\u6295')
+  }
+
   # 如果参数wb给定，则使用wb对象，否则读取模板文件
   if (missing(wb)) {
     tmpl <- system.file('template', 'template.xlsx', package='zsl')

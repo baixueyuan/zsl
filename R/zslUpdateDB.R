@@ -17,7 +17,7 @@
 #' @return No return, only the database will be updated.
 #' @export
 #'
-zslUpdateDB <- function(ch, date, folder='', delete.file=TRUE) {
+zslUpdateDB <- function(date, ch, folder='', delete.file=TRUE) {
   # 本函数更新折算率数据，日期可以给定也可以自动从服务器端获取已有数据的最后日期
 
   # 从全局环境中获取“ch”数据库连接对象

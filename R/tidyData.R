@@ -53,6 +53,14 @@ tidyData <- function(file) {
   if (ext=='xls') {
     startRow <- switch(exchange, SZ=4, SH=3)
     data <- XLConnect::readWorksheetFromFile(file, sheet=1, startRow=startRow)
+    while (!any(stringr::str_detect(colnames(data), '\u503a\u5238.*\u4ee3\u7801'))) {
+      # 查找债券列名称当中是否存在“债券代码”，没有就将“statRow”加1来尝试
+      # 如果跳过20行仍没有找到正确标题行则提示错误
+      data <- XLConnect::readWorksheetFromFile(file, sheet=1,
+                                               startRow=startRow + 1)
+      startRow <- startRow + 1
+      if (startRow > 20) stop('statRow is more than 20, please check!')
+    }
   }
 
   if (ext=='shtml') {
@@ -87,7 +95,7 @@ tidyData <- function(file) {
     ## 修改列名称
     magrittr::set_colnames(c('code', 'name', 'ratio', 'start', 'end')) %>%
     # 以code列为准去掉NA行
-    dplyr::filter(code!=is.na(code)) %>%
+    dplyr::filter(code!=is.na(code) & name!=is.na(name)) %>%
     ## 清理数据
     dplyr::mutate(
       start = stringr::str_replace(start, ' 00:00:00', '') %>% lubridate::ymd(),

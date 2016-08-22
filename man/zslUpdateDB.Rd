@@ -4,12 +4,12 @@
 \alias{zslUpdateDB}
 \title{Update zsl Data}
 \usage{
-zslUpdateDB(ch, date, folder = "", delete.file = TRUE)
+zslUpdateDB(date, ch, folder = "", delete.file = TRUE)
 }
 \arguments{
-\item{ch}{the RODBC connection object}
-
 \item{date}{the date of updating the zsl data}
+
+\item{ch}{the RODBC connection object}
 
 \item{folder}{the folder where to put the xls files}
 
