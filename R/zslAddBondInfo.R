@@ -1,3 +1,19 @@
+#' Adding Bond Information to Given data.frame
+#'
+#' The function adds the basic bond information to the given data.frame, using
+#' data's "code" column. So, a "code" column of Wind style bond code vector is
+#' necessary in the given data.
+#'
+#' The bond information added includes bond's maturity, bond rating, issuer
+#' rating, rating change, bond type, industry, municipal or not. The function
+#' will process the data retrieved from \code{WindR} Package, especially, most
+#' information has no value for the risk-free bonds, e.g. treasury bond, local
+#' government bond, and so on.
+#'
+#' @param data the given \code{data.frame}, including "code" column
+#'
+#' @return A \code{data.frame} which is \code{cbind}ed with original "data" and
+#'   bond information columns.
 #' @export
 
 zslAddBondInfo <- function(data) {
@@ -6,7 +22,9 @@ zslAddBondInfo <- function(data) {
 
   # 提取WindR数据
   code <- data$code
-  fields <- 'ptmyear,amount,latestissurercreditrating,rate_lateissuerchng,windl1type,industry_sw,municipalbond'
+  fields <- c('ptmyear', 'amount', 'latestissurercreditrating',
+              'rate_lateissuerchng', 'windl1type', 'industry_sw',
+              'municipalbond')
   opts <- 'industryType=1'
   tdate <- 'tradeDate='
 

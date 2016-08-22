@@ -20,9 +20,6 @@ zsp <- zslPeriodDiff(scale=5)
 zsp <- zslAddBondInfo(zsp)
 zslSaveToExcelP(data=zsp, wb=wb, output.file='折算率20160822.xlsx')
 
-atl <- attributes(ztd)
-attributes(ztd) <- list(class='data.frame', date='2016-08-19')
-
 # 提取全部下载列表
 dl <- zslCombineList('2005-05-01')
 dl1 <- filter(dl, annce < as.Date('2014-01-01'))

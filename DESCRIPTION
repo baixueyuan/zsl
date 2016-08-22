@@ -18,7 +18,8 @@ Imports:
   lubridate,
   tidyr,
   xts,
-  httr
+  httr,
+  WindR
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1
