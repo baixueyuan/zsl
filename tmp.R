@@ -13,12 +13,21 @@ zslUpdateDB()
 # zslUpdateDB(ch=local)
 
 # 提取最新变动大于等于5bp的记录
-ztd <- zslTwoDayDiff()
+ztd <- zslTwoDayDiff(date='2016-08-25')
 ztd <- zslAddBondInfo(ztd)
 zslSaveToExcel(data=ztd, assign=TRUE)
-zsp <- zslPeriodDiff(scale=5)
+zsp <- zslPeriodDiff(day1='2016-07-25', day2='2016-08-25', scale=5)
 zsp <- zslAddBondInfo(zsp)
-zslSaveToExcelP(data=zsp, wb=wb, output.file='折算率20160822.xlsx')
+zslSaveToExcelP(data=zsp, wb=wb, output.file='折算率20160823.xlsx')
+
+# 补充数据
+dl <- zslDownList()
+dl <- dplyr::filter(dl, annce=='2016-08-23')
+zslDownFile(dl)
+dat <- tidyData('20160823SH.xls')
+writeToDB(dat, ch, table='zsl', delete.first=TRUE)
+dat <- tidyData('20160823SZ.xls')
+writeToDB(dat, ch, table='zsl', delete.first=TRUE)
 
 # 提取全部下载列表
 dl <- zslCombineList('2005-05-01')
