@@ -13,12 +13,12 @@ zslUpdateDB()
 # zslUpdateDB(ch=local)
 
 # 提取最新变动大于等于5bp的记录
-ztd <- zslTwoDayDiff(date='2016-08-25')
+ztd <- zslTwoDayDiff()
 ztd <- zslAddBondInfo(ztd)
 zslSaveToExcel(data=ztd, assign=TRUE)
-zsp <- zslPeriodDiff(day1='2016-07-25', day2='2016-08-25', scale=5)
+zsp <- zslPeriodDiff(scale=5)
 zsp <- zslAddBondInfo(zsp)
-zslSaveToExcelP(data=zsp, wb=wb, output.file='折算率20160823.xlsx')
+zslSaveToExcelP(data=zsp, wb=wb, output.file='折算率20160902.xlsx')
 
 # 补充数据
 dl <- zslDownList()

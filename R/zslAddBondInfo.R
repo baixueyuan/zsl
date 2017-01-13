@@ -44,7 +44,7 @@ zslAddBondInfo <- function(data) {
   # 整理数据
   dat$maturity <- round(dat$maturity, 2)
 
-  dat$type[stringr::str_detect(dat$name, 'ETF')] <- 'ETF'
+  dat$type[stringr::str_detect(data$name, 'ETF')] <- 'ETF'
   dat[dat$rating=='NaN', 'rating'] <- ''
   dat[dat$issuer=='NaN', 'issuer'] <- ''
   dat[dat$rating_chg=='NaN', 'rating_chg'] <- ''
